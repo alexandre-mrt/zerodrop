@@ -1,0 +1,21 @@
+{
+  "name": "zerodrop",
+  "version": "0.1.0",
+  "description": "Decentralized file sharing powered by 0G Storage. Share files with anyone, stored permanently on-chain.",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "start": "bun run dist/index.js",
+    "lint": "bunx biome check --write ."
+  },
+  "dependencies": {
+    "@0gfoundation/0g-ts-sdk": "latest",
+    "ethers": "^6.13.0",
+    "hono": "^4.6.0",
+    "nanoid": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.6.0"
+  }
+}
