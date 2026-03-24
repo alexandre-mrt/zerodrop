@@ -1,5 +1,8 @@
 # ZeroDrop
 
+[![CI](https://github.com/alexandre-mrt/zerodrop/actions/workflows/ci.yml/badge.svg)](https://github.com/alexandre-mrt/zerodrop/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **Decentralized file sharing powered by 0G Storage.**
 
 Share files with anyone using a simple link. Files are stored on [0G decentralized storage](https://0g.ai), ensuring permanence, censorship resistance, and data integrity.
