@@ -23,13 +23,19 @@ dropRouter.post("/upload", async (c) => {
 		return c.json({ error: "No file provided" }, 400);
 	}
 
+	if (file.size === 0) {
+		return c.json({ error: "Cannot upload an empty file" }, 400);
+	}
+
 	if (file.size > MAX_FREE_SIZE) {
 		return c.json({ error: "File too large. Maximum 100 MB for free tier." }, 413);
 	}
 
-	const password = typeof body.password === "string" ? body.password : null;
-	const maxDownloads = typeof body.maxDownloads === "string" ? Number(body.maxDownloads) : null;
-	const expiryHours = typeof body.expiryHours === "string" ? Number(body.expiryHours) : DEFAULT_EXPIRY_HOURS;
+	const password = typeof body.password === "string" && body.password.length > 0 ? body.password : null;
+	const rawMaxDownloads = typeof body.maxDownloads === "string" ? Number(body.maxDownloads) : null;
+	const maxDownloads = rawMaxDownloads !== null && rawMaxDownloads > 0 ? rawMaxDownloads : null;
+	const rawExpiry = typeof body.expiryHours === "string" ? Number(body.expiryHours) : DEFAULT_EXPIRY_HOURS;
+	const expiryHours = rawExpiry > 0 && rawExpiry <= 8760 ? rawExpiry : DEFAULT_EXPIRY_HOURS; // max 1 year
 
 	const buffer = Buffer.from(await file.arrayBuffer());
 

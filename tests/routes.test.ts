@@ -121,6 +121,18 @@ describe("POST /api/upload", () => {
 		const res = await app.request("/api/upload", { method: "POST" });
 		expect(res.status).toBe(400);
 	});
+
+	test("rejects empty file", async () => {
+		const formData = new FormData();
+		formData.append("file", new File([], "empty.txt", { type: "text/plain" }));
+		const res = await app.request("/api/upload", {
+			method: "POST",
+			body: formData,
+		});
+		expect(res.status).toBe(400);
+		const json = await res.json();
+		expect(json.error).toContain("empty");
+	});
 });
 
 describe("Download limits", () => {
