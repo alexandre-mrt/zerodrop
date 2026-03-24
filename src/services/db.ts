@@ -72,4 +72,8 @@ export const queries = {
 	recentDrops: db.prepare<DropRow, [string]>(
 		"SELECT * FROM drops WHERE ip_address = ? ORDER BY created_at DESC LIMIT 10",
 	),
+
+	stats: db.prepare<{ total_drops: number; total_size: number; total_downloads: number }, []>(
+		"SELECT COUNT(*) as total_drops, COALESCE(SUM(file_size), 0) as total_size, COALESCE(SUM(downloads), 0) as total_downloads FROM drops",
+	),
 };

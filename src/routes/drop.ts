@@ -164,3 +164,13 @@ dropRouter.get("/:id/download", async (c) => {
 		return c.json({ error: message }, 500);
 	}
 });
+
+// Public stats
+dropRouter.get("/stats", (c) => {
+	const stats = queries.stats.get();
+	return c.json({
+		totalDrops: stats?.total_drops ?? 0,
+		totalSize: stats?.total_size ?? 0,
+		totalDownloads: stats?.total_downloads ?? 0,
+	});
+});
