@@ -151,4 +151,50 @@ describe("Database - drops", () => {
 			expect(drops[i].created_at).toBeGreaterThanOrEqual(drops[i + 1].created_at);
 		}
 	});
+
+	test("duplicate ID insertion fails", () => {
+		queries.insertDrop.run({
+			$id: "dup-id",
+			$rootHash: "0xdup1",
+			$fileName: "first.txt",
+			$fileSize: 100,
+			$mimeType: "text/plain",
+			$passwordHash: null,
+			$maxDownloads: null,
+			$expiresAt: null,
+			$ipAddress: null,
+		});
+
+		expect(() => {
+			queries.insertDrop.run({
+				$id: "dup-id",
+				$rootHash: "0xdup2",
+				$fileName: "second.txt",
+				$fileSize: 200,
+				$mimeType: "text/plain",
+				$passwordHash: null,
+				$maxDownloads: null,
+				$expiresAt: null,
+				$ipAddress: null,
+			});
+		}).toThrow();
+	});
+
+	test("null expiry means no expiration", () => {
+		queries.insertDrop.run({
+			$id: "no-expiry",
+			$rootHash: "0xnoexpiry",
+			$fileName: "forever.txt",
+			$fileSize: 100,
+			$mimeType: "text/plain",
+			$passwordHash: null,
+			$maxDownloads: null,
+			$expiresAt: null,
+			$ipAddress: null,
+		});
+
+		const drop = queries.getDrop.get("no-expiry");
+		expect(drop).toBeTruthy();
+		expect(drop!.expires_at).toBeNull();
+	});
 });
