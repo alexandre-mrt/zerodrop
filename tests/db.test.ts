@@ -106,4 +106,49 @@ describe("Database - drops", () => {
 		expect(drops.length).toBeGreaterThanOrEqual(1);
 		expect(drops[0].ip_address).toBe("127.0.0.1");
 	});
+
+	test("download counter increments correctly under load", () => {
+		queries.insertDrop.run({
+			$id: "counter-test",
+			$rootHash: "0xcounter",
+			$fileName: "count.txt",
+			$fileSize: 100,
+			$mimeType: "text/plain",
+			$passwordHash: null,
+			$maxDownloads: 100,
+			$expiresAt: null,
+			$ipAddress: null,
+		});
+
+		for (let i = 0; i < 10; i++) {
+			queries.incrementDownloads.run("counter-test");
+		}
+
+		const drop = queries.getDrop.get("counter-test");
+		expect(drop!.downloads).toBe(10);
+	});
+
+	test("recent drops are ordered by creation time", () => {
+		// Insert drops with same IP
+		for (let i = 0; i < 3; i++) {
+			queries.insertDrop.run({
+				$id: `order-${i}`,
+				$rootHash: `0xorder${i}`,
+				$fileName: `order-${i}.txt`,
+				$fileSize: i * 100,
+				$mimeType: "text/plain",
+				$passwordHash: null,
+				$maxDownloads: null,
+				$expiresAt: null,
+				$ipAddress: "10.0.0.1",
+			});
+		}
+
+		const drops = queries.recentDrops.all("10.0.0.1");
+		expect(drops.length).toBe(3);
+		// Most recent first (DESC order)
+		for (let i = 0; i < drops.length - 1; i++) {
+			expect(drops[i].created_at).toBeGreaterThanOrEqual(drops[i + 1].created_at);
+		}
+	});
 });
