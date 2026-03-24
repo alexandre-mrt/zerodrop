@@ -129,22 +129,23 @@ describe("Database - drops", () => {
 	});
 
 	test("recent drops are ordered by creation time", () => {
-		// Insert drops with same IP
+		// Insert drops with unique IP to avoid cross-test pollution
+		const ip = `10.0.0.${Date.now() % 256}`;
 		for (let i = 0; i < 3; i++) {
 			queries.insertDrop.run({
-				$id: `order-${i}`,
-				$rootHash: `0xorder${i}`,
+				$id: `order-${Date.now()}-${i}`,
+				$rootHash: `0xorder${Date.now()}${i}`,
 				$fileName: `order-${i}.txt`,
 				$fileSize: i * 100,
 				$mimeType: "text/plain",
 				$passwordHash: null,
 				$maxDownloads: null,
 				$expiresAt: null,
-				$ipAddress: "10.0.0.1",
+				$ipAddress: ip,
 			});
 		}
 
-		const drops = queries.recentDrops.all("10.0.0.1");
+		const drops = queries.recentDrops.all(ip);
 		expect(drops.length).toBe(3);
 		// Most recent first (DESC order)
 		for (let i = 0; i < drops.length - 1; i++) {
