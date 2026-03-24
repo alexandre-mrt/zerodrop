@@ -178,3 +178,43 @@ describe("Download limits", () => {
 		expect(res.status).toBe(410);
 	});
 });
+
+describe("Error response format", () => {
+	test("404 has error field", async () => {
+		const res = await app.request("/api/nonexistent/info");
+		const json = await res.json();
+		expect(json).toHaveProperty("error");
+		expect(typeof json.error).toBe("string");
+		expect(json.error.length).toBeGreaterThan(0);
+	});
+
+	test("401 has error field", async () => {
+		const res = await app.request("/api/pw-test/download");
+		const json = await res.json();
+		expect(json).toHaveProperty("error");
+		expect(typeof json.error).toBe("string");
+	});
+
+	test("400 has error field", async () => {
+		const res = await app.request("/api/upload", { method: "POST" });
+		const json = await res.json();
+		expect(json).toHaveProperty("error");
+	});
+
+	test("410 has error field", async () => {
+		queries.insertDrop.run({
+			$id: "err-410",
+			$rootHash: "0xerr410",
+			$fileName: "expired.txt",
+			$fileSize: 10,
+			$mimeType: "text/plain",
+			$passwordHash: null,
+			$maxDownloads: null,
+			$expiresAt: Math.floor(Date.now() / 1000) - 1,
+			$ipAddress: null,
+		});
+		const res = await app.request("/api/err-410/info");
+		const json = await res.json();
+		expect(json).toHaveProperty("error");
+	});
+});
