@@ -5,7 +5,7 @@ const DB_PATH = process.env.DATABASE_URL || "./data/zerodrop.db";
 export const db = new Database(DB_PATH, { create: true });
 db.exec("PRAGMA journal_mode = WAL");
 
-export function initializeDatabase() {
+function createTables() {
 	db.exec(`
     CREATE TABLE IF NOT EXISTS drops (
       id TEXT PRIMARY KEY,
@@ -24,6 +24,13 @@ export function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_drops_id ON drops(id);
     CREATE INDEX IF NOT EXISTS idx_drops_expires ON drops(expires_at);
   `);
+}
+
+// Auto-init tables before prepared statements
+createTables();
+
+export function initializeDatabase() {
+	createTables();
 }
 
 export interface DropRow {
