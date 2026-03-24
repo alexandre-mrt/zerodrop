@@ -10,6 +10,22 @@ describe("UI templates", () => {
 		expect(page).toContain("0G");
 	});
 
+	test("homePage has upload form elements", () => {
+		const page = html.homePage();
+		expect(page).toContain('enctype="multipart/form-data"');
+		expect(page).toContain('type="file"');
+		expect(page).toContain('name="file"');
+		expect(page).toContain('name="password"');
+		expect(page).toContain('name="expiryHours"');
+	});
+
+	test("homePage has expiry options", () => {
+		const page = html.homePage();
+		expect(page).toContain("24 hours");
+		expect(page).toContain("7 days");
+		expect(page).toContain("30 days");
+	});
+
 	test("downloadPage returns valid HTML with file info", () => {
 		const page = html.downloadPage({
 			id: "abc123",
