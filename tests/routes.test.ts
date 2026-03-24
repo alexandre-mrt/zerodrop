@@ -62,6 +62,21 @@ describe("GET /api/:id/info", () => {
 		expect(json.maxDownloads).toBe(5);
 	});
 
+	test("info includes all expected fields", async () => {
+		const res = await app.request("/api/test-abc/info");
+		const json = await res.json();
+		expect(json).toHaveProperty("id");
+		expect(json).toHaveProperty("fileName");
+		expect(json).toHaveProperty("fileSize");
+		expect(json).toHaveProperty("mimeType");
+		expect(json).toHaveProperty("hasPassword");
+		expect(json).toHaveProperty("downloads");
+		expect(json).toHaveProperty("maxDownloads");
+		expect(json).toHaveProperty("expiresAt");
+		expect(json).toHaveProperty("createdAt");
+		expect(json.mimeType).toBe("text/plain");
+	});
+
 	test("returns 404 for nonexistent", async () => {
 		const res = await app.request("/api/nonexistent/info");
 		expect(res.status).toBe(404);
