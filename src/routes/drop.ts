@@ -81,6 +81,11 @@ dropRouter.post("/upload", async (c) => {
 // Get drop info (without downloading)
 dropRouter.get("/:id/info", async (c) => {
 	const dropId = c.req.param("id");
+
+	if (!dropId || dropId.length > 30) {
+		return c.json({ error: "Invalid drop ID" }, 400);
+	}
+
 	const drop = queries.getDrop.get(dropId);
 
 	if (!drop) {
@@ -113,6 +118,11 @@ dropRouter.get("/:id/info", async (c) => {
 // Download a file
 dropRouter.get("/:id/download", async (c) => {
 	const dropId = c.req.param("id");
+
+	if (!dropId || dropId.length > 30) {
+		return c.json({ error: "Invalid drop ID" }, 400);
+	}
+
 	const drop = queries.getDrop.get(dropId);
 
 	if (!drop) {

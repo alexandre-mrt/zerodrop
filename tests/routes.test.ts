@@ -72,6 +72,11 @@ describe("GET /api/:id/info", () => {
 		expect(res.status).toBe(410);
 	});
 
+	test("returns 400 for overly long drop ID", async () => {
+		const res = await app.request(`/api/${"a".repeat(50)}/info`);
+		expect(res.status).toBe(400);
+	});
+
 	test("shows hasPassword=true for protected drops", async () => {
 		const res = await app.request("/api/pw-test/info");
 		expect(res.status).toBe(200);
