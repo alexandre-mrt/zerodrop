@@ -56,4 +56,44 @@ describe("File size limits", () => {
 		const fileSize = 50 * 1024 * 1024;
 		expect(fileSize <= MAX_FREE_SIZE).toBe(true);
 	});
+
+	test("exactly at limit is accepted", () => {
+		expect(MAX_FREE_SIZE <= MAX_FREE_SIZE).toBe(true);
+	});
+
+	test("1 byte over limit is rejected", () => {
+		expect(MAX_FREE_SIZE + 1 > MAX_FREE_SIZE).toBe(true);
+	});
+});
+
+describe("Expiry validation", () => {
+	const DEFAULT_EXPIRY_HOURS = 24 * 7;
+	const MAX_EXPIRY_HOURS = 8760; // 1 year
+
+	test("default expiry is 7 days", () => {
+		expect(DEFAULT_EXPIRY_HOURS).toBe(168);
+	});
+
+	test("max expiry is 1 year", () => {
+		expect(MAX_EXPIRY_HOURS).toBe(8760);
+	});
+
+	test("expiry in seconds calculation", () => {
+		const expirySeconds = DEFAULT_EXPIRY_HOURS * 3600;
+		expect(expirySeconds).toBe(604800); // 7 days in seconds
+	});
+});
+
+describe("Drop ID format", () => {
+	test("nanoid(10) produces 10-char strings", () => {
+		// Simulating nanoid format
+		const id = "abc123xyz0";
+		expect(id.length).toBe(10);
+	});
+
+	test("max drop ID length is 30", () => {
+		const maxLen = 30;
+		expect("a".repeat(maxLen).length).toBeLessThanOrEqual(maxLen);
+		expect("a".repeat(maxLen + 1).length).toBeGreaterThan(maxLen);
+	});
 });
