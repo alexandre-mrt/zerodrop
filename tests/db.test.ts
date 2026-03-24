@@ -197,4 +197,40 @@ describe("Database - drops", () => {
 		expect(drop).toBeTruthy();
 		expect(drop!.expires_at).toBeNull();
 	});
+
+	test("cleanExpired does not delete non-expired drops", () => {
+		queries.insertDrop.run({
+			$id: "still-valid",
+			$rootHash: "0xvalid",
+			$fileName: "valid.txt",
+			$fileSize: 50,
+			$mimeType: "text/plain",
+			$passwordHash: null,
+			$maxDownloads: null,
+			$expiresAt: Math.floor(Date.now() / 1000) + 86400, // +24h
+			$ipAddress: null,
+		});
+
+		queries.cleanExpired.run();
+		const drop = queries.getDrop.get("still-valid");
+		expect(drop).toBeTruthy();
+	});
+
+	test("cleanExpired does not delete null-expiry drops", () => {
+		queries.insertDrop.run({
+			$id: "null-clean",
+			$rootHash: "0xnullclean",
+			$fileName: "null.txt",
+			$fileSize: 50,
+			$mimeType: "text/plain",
+			$passwordHash: null,
+			$maxDownloads: null,
+			$expiresAt: null,
+			$ipAddress: null,
+		});
+
+		queries.cleanExpired.run();
+		const drop = queries.getDrop.get("null-clean");
+		expect(drop).toBeTruthy();
+	});
 });
