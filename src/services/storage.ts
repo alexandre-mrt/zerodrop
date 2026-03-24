@@ -7,14 +7,21 @@ import { join } from "node:path";
 const EVM_RPC = process.env.ZG_EVM_RPC || "https://evmrpc-testnet.0g.ai";
 const INDEXER_RPC =
 	process.env.ZG_INDEXER_RPC || "https://indexer-storage-testnet-turbo.0g.ai";
-const PRIVATE_KEY = process.env.ZG_PRIVATE_KEY;
 
-if (!PRIVATE_KEY) {
-	throw new Error("ZG_PRIVATE_KEY environment variable is required");
+// Lazy-init to avoid crashing at import time in tests
+let _signer: ethers.Wallet | null = null;
+
+function getSigner(): ethers.Wallet {
+	if (!_signer) {
+		const privateKey = process.env.ZG_PRIVATE_KEY;
+		if (!privateKey) {
+			throw new Error("ZG_PRIVATE_KEY environment variable is required");
+		}
+		const provider = new ethers.JsonRpcProvider(EVM_RPC);
+		_signer = new ethers.Wallet(privateKey, provider);
+	}
+	return _signer;
 }
-
-const provider = new ethers.JsonRpcProvider(EVM_RPC);
-const signer = new ethers.Wallet(PRIVATE_KEY, provider);
 
 export async function uploadToZeroG(
 	buffer: Buffer,
@@ -35,7 +42,7 @@ export async function uploadToZeroG(
 
 		const rootHash = tree.rootHash() ?? "";
 		const indexer = new Indexer(INDEXER_RPC);
-		const [, uploadErr] = await indexer.upload(file, EVM_RPC, signer);
+		const [, uploadErr] = await indexer.upload(file, EVM_RPC, getSigner());
 
 		if (uploadErr) {
 			throw new Error(`Upload failed: ${uploadErr}`);
